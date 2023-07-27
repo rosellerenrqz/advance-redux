@@ -11,14 +11,20 @@ export const fetchCartData = () => {
       if (!response.ok) {
         throw new Error("Could not fetch Cart data!");
       }
-      const data = response.json();
+      const data = await response.json();
 
       return data;
     };
     try {
       const cartData = await fetchData();
       //use cartData to set cart
-      dispatch(cartActions.replaceCart(cartData));
+      dispatch(
+        cartActions.replaceCart({
+          items: cartData.items || [],
+          //fixing issue of items being undefined, instead of just leave it as empty array
+          totalQuantity: cartData.totalQuantity,
+        })
+      );
     } catch (error) {
       //show error notif
       dispatch(
@@ -49,7 +55,10 @@ export const sendCartData = (cart) => {
         "https://redux-d1c26-default-rtdb.firebaseio.com/cart.json",
         {
           method: "PUT",
-          body: JSON.stringify(cart),
+          body: JSON.stringify({
+            items: cart.items,
+            totalQuantity: cart.totalQuantity,
+          }),
         }
       );
 
