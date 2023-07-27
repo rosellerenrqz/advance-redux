@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { uiActions } from "./store/ui-slice";
-
+import { fetchCartData, sendCartData } from "./store/cart-actions";
 import Notification from "./Components/UI/Notification";
 import Layout from "./Components/Layout/Layout";
 import Products from "./Components/Shop/Products";
@@ -16,56 +15,16 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const sendCartData = async () => {
-      //show pending notif
-      dispatch(
-        uiActions.setNotification({
-          status: "pending",
-          title: "Sending...",
-          message: "Sending Cart Data",
-        })
-      );
+    dispatch(fetchCartData());
+  }, [dispatch]);
 
-      try {
-        const response = await fetch(
-          `https://redux-d1c26-default-rtdb.firebaseio.com/cart.json`,
-          {
-            method: "PUT",
-            body: JSON.stringify(cart),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Sending Cart Data Failed.");
-        }
-
-        //show success notif
-        dispatch(
-          uiActions.setNotification({
-            status: "success",
-            title: "Success",
-            message: "Sent Cart Data Successfully!",
-          })
-        );
-      } catch (error) {
-        //show error notif
-        dispatch(
-          uiActions.setNotification({
-            status: "error",
-            title: "Error",
-            message: "Sending Cart Data Error!",
-          })
-        );
-      }
-    };
-
-    //initial mount notif will be visible
+  useEffect(() => {
     if (initialMount) {
       initialMount = false;
       return;
     }
 
-    sendCartData();
+    dispatch(sendCartData(cart));
   }, [cart, dispatch]);
 
   return (
